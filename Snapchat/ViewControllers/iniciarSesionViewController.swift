@@ -26,31 +26,35 @@ class iniciarSesionViewController: UIViewController, LoginButtonDelegate {
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     
+    @IBAction func btnRegistrar(_ sender: Any) {
+        self.performSegue(withIdentifier: "registrar", sender: nil)
+    }
     @IBAction func iniciarSesionTapped(_ sender: Any) {
         Auth.auth().signIn(withEmail: emailTextField.text!, password: passwordTextField.text!) { (user, error) in print ("Intentando Iniciar Sesion")
             if error != nil{
                 print("se presento el siguiente error: \(error)")
-                Auth.auth().createUser(withEmail: self.emailTextField.text!, password: self.passwordTextField.text!, completion: { (user, error) in print("Intentanto crear Usuario")
-                    if error != nil {
-                        print("Se presento el siguiente error al crear un usuario: \(error)")
-                    }else {
-                        print("El usuario fue creado exitosamente")
-                    Database.database().reference().child("usuarios").child(user!.user.uid).child("email").setValue(user!.user.email)
-                        
-                        let alerta = UIAlertController(title: "Creacion de Usuario", message: "Usuario: \(self.emailTextField.text!) se creo correctamente", preferredStyle: .alert)
-                        let btnOK = UIAlertAction(title: "aceptar" , style: .default, handler: { (UIAlertAction) in
-                            self.performSegue(withIdentifier: "iniciarsesionsegue", sender: nil)
-                        })
-                        alerta.addAction(btnOK)
-                        self.present(alerta, animated: true, completion: nil)
-                    }
-                })
+                self.mostrarAlerta(titulo: "Error", mensaje: "No se encontro al usuario ¿Desea crear uno?", acciona: "Crear Usuario", accionn: "Cancelar")
             }else{
                 print("Inicio de sesion exitoso")
                 self.performSegue(withIdentifier: "iniciarsesionsegue", sender: nil)
             }
         }
+        emailTextField.text! = ""
+        passwordTextField.text! = ""
     }
+    func mostrarAlerta(titulo: String, mensaje: String, acciona: String, accionn: String) {
+        let alerta = UIAlertController(title: titulo, message: mensaje, preferredStyle: .alert)
+        let btnOk = UIAlertAction(title: acciona, style: .default, handler: {(action) in self.registrar() } )
+        let btnCancel = UIAlertAction(title: accionn, style: .default, handler: nil)
+        alerta.addAction(btnOk)
+        alerta.addAction(btnCancel)
+        present(alerta, animated: true, completion: nil)
+    }
+    
+    func registrar(){
+        self.performSegue(withIdentifier: "registrar", sender: nil)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -59,7 +63,7 @@ class iniciarSesionViewController: UIViewController, LoginButtonDelegate {
         let loginButton = FBLoginButton()
         
         view.addSubview(loginButton)
-        loginButton.frame = CGRect(x: 100, y: 500, width: view.frame.width - 200, height: 30)
+        loginButton.frame = CGRect(x: 100, y: 600, width: view.frame.width - 200, height: 30)
         loginButton.delegate = self
         
 //        -----------------------------------------------------------------------------------------
